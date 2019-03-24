@@ -1,40 +1,19 @@
-# # # # #
-# Notes for future improvements/ideas:
-# Allow for different charsets to be added, so that this game
-# can be used to for many other languages.
-#
-# Add different template options. I.E. one that gives a wordlist, one that gives
-# a name/date field, one that provides lines for people to write their found words
-# on, a combination of the above, etc.
-#
-# Allow an answer key to be printed.
-#
-# On the GUI, allow them to create multiple different versions of the puzzle if they wish.
-#
-# Add support for rectangular boards.
-#
-# Add a puzzle generation progress bar.
-#
-# Add the ability to save past-generated puzzles.
-#
-# MAKE SURE TO RESET THE GLOBAL VARIABLES, OR TERMINATE THE CODE AFTER GENERATING THE BOARDS, OTHERWISE ERRORS WILL HAPPEN!
-#
-# Allow random puzzles with random words to be generated.
-# # # # #
-
 #Make all necessary imports:
-import random , time , threading , queue
+import threading , time , random
 from tkinter import *
 from tkinter import messagebox
-from PIL import Image
 
 #Declare any necessary global variables:
-letters = ['A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H' , 'I' , 'J' , 'K' , 'L' , 'M' , 'N' , 'O' , 'P' , 'Q' , 'R' , 'S' , 'T' , 'U' , 'V' , 'W' , 'X' , 'Y' , 'Z']
-words = []
-defaultWordDisplayed = '1.)\tDEFAULT'
-boardDimensions = []
-boards = []
+defaultCharSet = ['A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H' , 'I' , 'J' , 'K' , 'L' , 'M' , 'N' , 'O' , 'P' , 'Q' , 'R' , 'S' , 'T' , 'U' , 'V' , 'W' , 'X' , 'Y' , 'Z']
+preserveCapsCharSet = ['A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H' , 'I' , 'J' , 'K' , 'L' , 'M' , 'N' , 'O' , 'P' , 'Q' , 'R' , 'S' , 'T' , 'U' , 'V' , 'W' , 'X' , 'Y' , 'Z' , 'a' , 'b' , 'c' , 'd' , 'e' , 'f' , 'g' , 'h' , 'i' , 'j' , 'k' , 'l' , 'm' , 'n' , 'o' , 'p' , 'q' , 'r' , 's' , 't' , 'u' , 'v' , 'w' , 'x' , 'y' , 'z']
 
+colors = ['#1C1C1C' , '#ED0033' , '#FF6200' , '#4EE000' , '#00AB85' , '#7900BC' , '#FFFF00']
+wordsToInclude = []
+defaultWordDisplayed = '1.)\tDEFAULT'
+characterSet = defaultCharSet[:]
+
+
+### Core Functions ###
 
 #Define a function that identifies and returns all possible valid "next moves":
 def nextValidLocation(currentBoard , letter , y = 0 , x = 0):
@@ -86,9 +65,15 @@ def nextValidLocation(currentBoard , letter , y = 0 , x = 0):
 
 
 #Define a function that takes the user's input and generates the corresponding board(s):
-def genBoards(numBoardsToGen):
+def genBoards(numBoardsToGen , boardDimensions , words):
+	boards = []
 	#Generate a base, "blank" board:
-	board = ([['ebce1dd2d40aec3'] * boardDimensions[1]] * boardDimensions[0])
+	board = []
+	for i in range(0 , boardDimensions[0]):
+		row = []
+		for i in range(0 , boardDimensions[1]):
+			row.append('ebce1dd2d40aec3')
+		board.append(row)
 
 	for i in range(0 , numBoardsToGen):
 		genedBoards = []
@@ -97,10 +82,10 @@ def genBoards(numBoardsToGen):
 			tempBoard = board[:]
 			notFull = True
 			wordsNotAdded = []
+			loopNotBroken = True
 
 			#Loop over each word to try to add it to the board:
 			for word in words:
-				print(word , end = '\n\n')
 				#Detect if the board is already full, then return it as-is if it is:
 				for row in tempBoard:
 					if ('ebce1dd2d40aec3' in row):
@@ -114,10 +99,10 @@ def genBoards(numBoardsToGen):
 					tryCounter = 0
 					attemptSuccess = True
 					while (True):
-						print(tempBoard , end = '\n\n')
 						#Allow a maximum of 50 tries to try and place each word (this is a bit overkill, but doesn't take-up too much time. Therefore it'll be nice to have for the larger puzzles):
 						if (tryCounter >= 50):
 							wordsNotAdded.append(word)
+							loopNotBroken = False
 							break
 
 						#Choose a random starting position (and try infinitely until one is found that is available):
@@ -149,12 +134,19 @@ def genBoards(numBoardsToGen):
 									x2 = moveToTry[1]
 
 							if (attemptSuccess):
+								loopNotBroken = False
 								break
 
 						else:
 							continue
-				genedBoards.append([tempBoard , len(wordsNotAdded)])
-				print('Gened Boards:\t' + str(genedBoards) , sep = '\n\n\n')
+				else:
+					genedBoards.append([tempBoard , len(wordsNotAdded)])
+				if (loopNotBroken):
+					genedBoards.append([tempBoard , len(wordsNotAdded)])
+				else:
+					loopNotBroken = True
+		if (len(genedBoards) == 0):
+			continue
 		leastWordsNotAdded = genedBoards[0][1]
 		bestBoard = genedBoards[0][0]
 		for aBoard in genedBoards:
@@ -163,40 +155,67 @@ def genBoards(numBoardsToGen):
 				leastWordsNotAdded = aBoard[1]
 		boards.append(bestBoard)
 
+	return boards
 
-#Functions Relating to GUI Interaction:
-#Define a function to create a pop-up window via which custom words can be added to the puzzle:
-def getWords():
-	getWordWindow = Toplevel()
-	getWordWindow.title('Add Custom Words')
-	getWordWindow.geometry('450x150')
-	getWordWindow.configure(bg = '#FFFFFF')
+### End of Core Functions ###
 
-	heading = Label(getWordWindow , text = 'Please Enter A Word Below:' , bg = '#FFFFFF' , fg = '#000000' , font = ('Times New Roman' , 16))
-	heading.pack(side = 'top' , pady = 5)
+### GUI-Related Functions ###
 
-	wordBox = Entry(getWordWindow , width = 30 , font = ('Times New Roman' , 18) , bg = '#e3e3e3' , fg = '#0342c1')
-	wordBox.pack(side = 'top' , pady = 10)
-	wordBox.focus_set()
+#Define a function to handle the start of the board generation process, and present a waiting screen:
+def startBoardGen():
+	if (int(numPuzzleBox.get()) > 1):
+		messagebox.showinfo('Puzzles Being Generated' , 'Your puzzles will now be generated in the background. You will receive another message box once they have been successfully created.')
+	else:
+		messagebox.showinfo('Puzzle Being Generated' , 'Your puzzle will now be generated in the background. You will receive another message box once it has been successfully created.')
 
-	submitButton = Button(getWordWindow , text = 'Submit' , bd = 2 , bg = '#5c3566' , fg = '#FFFFFF' , activebackground = '#ce5c00' , activeforeground = '#000000', font = ('Times New Roman' , 16) , command = lambda: addWords(getWordWindow , wordBox.get()))
-	submitButton.place(x = 300 , y = 100)
-
-	cancelButton = Button(getWordWindow , text = 'Cancel' , bd = 2 , bg = '#a90000' , fg = '#FFFFFF' , font = ('Times New Roman' , 16) , command = getWordWindow.destroy)
-	cancelButton.place(x = 75 , y = 100)
-
-
-#Define a function to get the inputted words from the GUI above, and add them to the words list:
-def addWords(window , word):
+	numberOfPuzzles = int(numPuzzleBox.get())
+	boardDimensions = [int(yDimenBox.get()) , int(xDimenBox.get())]
 	window.destroy()
+
+	boardsToUse = genBoards(numberOfPuzzles , boardDimensions , wordsToInclude)
+
+	print(boardsToUse)
+
+
+#Define a function to get the inputted words from getWords, and add them to the wordsToInclude list:
+def addWords(windowToDestroy , word , characterSet):
+	windowToDestroy.destroy()
+
 	word = word.strip()
 	word = word.replace(' ' , '')
-	word = word.upper()
+
+	if (characterSet == defaultCharSet):
+		word = word.upper()
+
+	#Load the custom charset if applicable, for compliance checking:
+	if (characterSet[0] == 'Custom'):
+		runtimeErrorOccurred = False
+		customSet = []
+		try:
+			charSetFile = open('customCharacterSet.txt' , 'r')
+			characters = charSetFile.read()
+			characters = characters[0:(len(characters) - 1)]
+			charSetFile.close()
+
+			for char in characters:
+				if (((len(characters) <= 0) or (char == ' ')) or ((char == '\t') or (char == '\n'))):
+					messagebox.showerror('Invalid Character Set File' , 'Please check customCharacterSet.txt to make sure it contains no invalid content (such as new lines, tabs, spaces, etc.).')
+					runtimeErrorOccurred = True
+					break
+				customSet.append(char)
+		except:
+			messagebox.showerror('Character Set File Error' , 'An error occurred processing your custom character set. Please make sure everything is in order and try again.')
+			return
+
+		if (runtimeErrorOccurred):
+			return
+		else:
+			characterSet = customSet
 
 	#Check to make sure the input is valid:
 	for char in word:
-		if (not(char in letters)):
-			messagebox.showerror('Invalid Input' , 'The word you have inputted was not valid. Please make sure you use only the 26 standard, ASCII letters.')
+		if (not(char in characterSet)):
+			messagebox.showerror('Invalid Input' , 'The word you have inputted was not valid. Please make sure you only use characters found in the customCharacterSet.txt file.')
 			return
 		if (len(word) > 20):
 			messagebox.showerror('Invalid Input' , 'Please make sure the word you entered is less than 20 characters in length.')
@@ -204,29 +223,73 @@ def addWords(window , word):
 		if (len(word) < 3):
 			messagebox.showerror('Invalid Input' , 'Please make sure the word you entered is at least 3 characters in length.')
 			return
-		if (len(words) >= 20):
+		if (len(wordsToInclude) >= 20):
 			messagebox.showerror('Unable to Accept Input' , 'You have already entered the maximum of 20 words, therefore this word will not be added.')
 			return
 
-	words.append(word)
+	wordsToInclude.append(word)
 	counter = 1
 	wordsDisplayed = ''
-	for word in words:
+	for word in wordsToInclude:
 		wordsDisplayed += (str(counter) + '.)\t' + word + '\n')
 		counter += 1
 	wordsListLabel.configure(text = wordsDisplayed)
 
+### End of GUI-Related Functions ###
 
-#Define a function to handle the start of the board generation process, and present a waiting screen:
-def startBoardGen():
-	global boardDimensions
-	boardDimensions = [int(yDimenBox.get()) , int(xDimenBox.get())]
+## GUIs ###
 
-	boardGenThread = threading.Thread(target = genBoards , args = (int(numPuzzleBox.get()) , ) , daemon = True)
-	boardGenThread.start()
+#Define a function to create a pop-up window which allows the user to add custom words:
+def getWords():
+	getWordWindow = Toplevel()
+	getWordWindow.title('Add Custom Words')
+	getWordWindow.geometry('450x175')
+	getWordWindow.configure(bg = colors[0])
 
-	boardGenThread.join()
-	print(boards)
+	heading = Label(getWordWindow , text = 'Please Enter A Word Below:' , bg = colors[0] , fg = colors[2] , font = ('Arial' , 16))
+	heading.pack(side = 'top' , pady = (5 , 0))
+
+	wordsBelowReminder = Label(getWordWindow , text = '(Words added first are more likely to be able to be fit\ninto the puzzle than words towards the end of the list.)' , bg = colors[0] , fg = colors[2] , font = ('Arial' , 11))
+	wordsBelowReminder.pack(side = 'top' , pady = (1 , 2))
+
+	wordBox = Entry(getWordWindow , width = 30 , font = ('Arial' , 18) , bg = colors[0] , fg = colors[4] , bd = 3 , relief = 'groove' , highlightthickness = 0 , insertbackground = colors[5] , highlightbackground = colors[5])
+	wordBox.pack(side = 'top' , pady = (2 , 0))
+	wordBox.focus_set()
+
+	submitButton = Button(getWordWindow , text = 'Submit' , bd = 0 , bg = colors[3] , fg = colors[0] , activebackground = colors[0] , activeforeground = colors[3] , highlightthickness = 2 , highlightbackground = colors[4] , font = ('Arial bold' , 16) , command = lambda: addWords(getWordWindow , wordBox.get() , characterSet))
+	submitButton.place(x = 273 , y = 125)
+
+	cancelButton = Button(getWordWindow , text = 'Cancel' , bd = 0 , bg = colors[1] , fg = colors[0] , activebackground = colors[0] , activeforeground = colors[1] , highlightthickness = 2 , highlightbackground = colors[5] , font = ('Arial bold' , 16) , command = getWordWindow.destroy)
+	cancelButton.place(x = 75 , y = 125)
+
+	#Bind the enter keys, so that they may be used instead of having to click the submit button:
+	getWordWindow.bind('<Return>' , lambda _: addWords(getWordWindow , wordBox.get() , characterSet))
+	getWordWindow.bind('<KP_Enter>' , lambda _: addWords(getWordWindow , wordBox.get() , characterSet))
+
+
+#Define a function to change the character set:
+def changeChosenCharSet(buttonNum):
+	global characterSet
+	if (buttonNum == 0):
+		characterSet = defaultCharSet[:]
+		defaultButton.configure(fg = colors[3] , activeforeground = colors[1] , highlightthickness = 2)
+		defaultLowerButton.configure(fg = colors[1] , activeforeground = colors[3] , highlightthickness = 0)
+		customButton.configure(fg = colors[1] , activeforeground = colors[3] , highlightthickness = 0)
+	elif (buttonNum == 1):
+		characterSet = preserveCapsCharSet[:]
+		defaultButton.configure(fg = colors[1] , activeforeground = colors[3] , highlightthickness = 0)
+		defaultLowerButton.configure(fg = colors[3] , activeforeground = colors[1] , highlightthickness = 2)
+		customButton.configure(fg = colors[1] , activeforeground = colors[3] , highlightthickness = 0)
+	elif (buttonNum == 2):
+		characterSet = ['Custom']
+		defaultButton.configure(fg = colors[1] , activeforeground = colors[3] , highlightthickness = 0)
+		defaultLowerButton.configure(fg = colors[1] , activeforeground = colors[3] , highlightthickness = 0)
+		customButton.configure(fg = colors[3] , activeforeground = colors[1] , highlightthickness = 2)
+	else:
+		characterSet = defaultCharSet[:]
+		defaultButton.configure(fg = colors[3] , activeforeground = colors[1] , highlightthickness = 2)
+		defaultLowerButton.configure(fg = colors[1] , activeforeground = colors[3] , highlightthickness = 0)
+		customButton.configure(fg = colors[1] , activeforeground = colors[3] , highlightthickness = 0)
 
 
 #Define a function meant to be threaded, and automatically check inputted values for validity:
@@ -239,80 +302,85 @@ def validityCheck():
 		allValid = [False , False , True]
 
 		if (((xDimen.isdigit()) and (int(xDimen) >= 3)) and (int(xDimen) <= 20)):
-			xDimenBox.configure(bg = '#a9ffb6')
+			xDimenBox.configure(fg = colors[3])
 			allValid[0] = True
 		else:
-			xDimenBox.configure(bg = '#ffc9c9')
+			xDimenBox.configure(fg = colors[1])
 			allValid[0] = False
 
 		if (((yDimen.isdigit()) and (int(yDimen) >= 3)) and (int(yDimen) <= 20)):
-			yDimenBox.configure(bg = '#a9ffb6')
+			yDimenBox.configure(fg = colors[3])
 			allValid[1] = True
 		else:
-			yDimenBox.configure(bg = '#ffc9c9')
+			yDimenBox.configure(fg = colors[1])
 			allValid[1] = False
 
 		if (((numPuzzle.isdigit()) and (int(numPuzzle) >= 1)) and (int(numPuzzle) <= 50)):
-			numPuzzleBox.configure(bg = '#a9ffb6')
+			numPuzzleBox.configure(fg = colors[3])
 			allValid[2] = True
+			if (int(numPuzzle) > 1):
+				genButton.configure(text = 'Generate Puzzles')
+			else:
+				genButton.configure(text = 'Generate Puzzle')
 		else:
-			numPuzzleBox.configure(bg = '#ffc9c9')
+			numPuzzleBox.configure(fg = colors[1])
 			allValid[2] = False
 
-		if (((allValid[0] and allValid[1]) and allValid[2]) and (len(words) >= 1)):
+		if (((allValid[0] and allValid[1]) and allValid[2]) and (len(wordsToInclude) >= 1)):
 			genButton.configure(command = startBoardGen)
 		else:
 			genButton.configure(command = lambda: messagebox.showerror('Invalid Input' , 'Please check your input to ensure it is valid, and try again.'))
-		
 
 
-#Run the GUI:
+#Run the main GUI:
 window = Tk()
 window.title('Roboxum Puzzle Generator')
 window.geometry('800x900')
-window.configure(bg = '#5C636E')
+window.configure(bg = colors[0])
 
-originalLogo = Image.open('Roboxum Logo.gif')
-logoResized = originalLogo.resize((115 , 115) , Image.ANTIALIAS)
-logoResized.save('logoResized1.gif' , 'gif')
-logo = PhotoImage(file = 'logoResized1.gif')
-logoCanvas = Canvas(window , width = 115 , height = 115 , bg = '#FFFFFF' , bd = 0 , highlightthickness = 0)
-logoCanvas.create_image(0 , 0 , image = logo , anchor = 'nw')
-logoCanvas.pack(side = 'top' , pady = 5)
-
-heading = Label(window , text = 'Word Finder Puzzle Generator' , bg = '#5C636E' , fg = '#2F0077' , font = ('Times New Roman' , 25))
+heading = Label(window , text = 'Word Finder Puzzle Generator' , bg = colors[0] , fg = colors[4] , font = ('Arial bold' , 30))
 heading.pack(side = 'top' , pady = 5)
 
-question1 = Label(window , text = 'What are the desired dimensions of the puzzle (Number of rows and columns)?' , bg = '#5C636E' , fg = '#FFFFFF' , font = ('Times New Roman' , 14))
-question1.place(x = 5 , y = 175)
-xDimenBox = Entry(window , width = 10 , font = ('Times New Roman' , 20) , bg = '#ffc9c9' , fg = '#000000')
+question1 = Label(window , text = 'What are the desired dimensions of the puzzle?' , bg = colors[0] , fg = colors[2] , font = ('Arial' , 16))
+question1.place(x = 5 , y = 70)
+xDimenBox = Entry(window , width = 10 , font = ('Arial bold' , 20) , bg = colors[0] , fg = colors[1] , bd = 0 , relief = 'flat' , highlightthickness = 2 , insertbackground = colors[5] , highlightbackground = colors[5])
 xDimenBox.insert(0 , 'Columns')
-yDimenBox = Entry(window , width = 10 , font = ('Times New Roman' , 20) , bg = '#ffc9c9' , fg = '#000000')
+yDimenBox = Entry(window , width = 10 , font = ('Arial bold' , 20) , bg = colors[0] , fg = colors[1] , bd = 0 , relief = 'flat' , highlightthickness = 2 , insertbackground = colors[5] , highlightbackground = colors[5])
 yDimenBox.insert(0 , 'Rows')
-xDimenBox.place(x = 15 , y = 210)
-yDimenBox.place(x = 220 , y = 210)
+xDimenBox.place(x = 5 , y = 100)
+yDimenBox.place(x = 210 , y = 100)
 
-question2 = Label(window , text = 'How many different puzzles would you like to generate?' , bg = '#5C636E' , fg = '#FFFFFF' , font = ('Times New Roman' , 14))
-question2.place(x = 5 , y = 265)
-numPuzzleBox = Entry(window , width = 6 , font = ('Times New Roman' , 20) , bg = '#ffc9c9' , fg = '#000000')
+question2 = Label(window , text = 'How many different puzzles would you like to generate?' , bg = colors[0] , fg = colors[2] , font = ('Arial' , 16))
+question2.place(x = 5 , y = 155)
+numPuzzleBox = Entry(window , width = 6 , font = ('Arial' , 20) , bg = colors[0] , fg = colors[1] , bd = 0 , relief = 'flat' , highlightthickness = 2 , insertbackground = colors[5] , highlightbackground = colors[5])
 numPuzzleBox.insert(0 , '1')
-numPuzzleBox.place(x = 15 , y = 300)
+numPuzzleBox.place(x = 5 , y = 185)
 
-addWordsButton = Button(window , text = 'Add A Word To The Puzzle' , bd = 0 , bg = '#6bf442' , fg = '#000000' , activebackground = '#303030' , activeforeground = '#6bf442', font = ('Times New Roman' , 15) , command = getWords)
-addWordsButton.place(x = 5 , y = 365)
+question3 = Label(window , text = 'Choose a character set:' , bg = colors[0] , fg = colors[2] , font = ('Arial' , 16))
+question3.place(x = 5 , y = 245)
+defaultButton = Button(window , text = 'Default' , font = ('Arial' , 16) , bg = colors[0] , fg = colors[3] , bd = 0 , relief = 'flat' , highlightthickness = 2 , highlightbackground = colors[4] , activebackground = colors[0] , activeforeground = colors[1] , command = lambda: changeChosenCharSet(0))
+defaultButton.place(x = 5 , y = 275)
+defaultLowerButton = Button(window , text = 'Default Plus Lowercase Letters' , font = ('Arial' , 16) , bg = colors[0] , fg = colors[1] , bd = 0 , relief = 'flat' , highlightthickness = 0 , highlightbackground = colors[4] , activebackground = colors[0] , activeforeground = colors[3] , command = lambda: changeChosenCharSet(1))
+defaultLowerButton.place(x = 120 , y = 275)
+customButton = Button(window , text = 'Custom' , font = ('Arial' , 16) , bg = colors[0] , fg = colors[1] , bd = 0 , relief = 'flat' , highlightthickness = 0 , highlightbackground = colors[4] , activebackground = colors[0] , activeforeground = colors[3] , command = lambda: changeChosenCharSet(2))
+customButton.place(x = 467 , y = 275)
 
-wordsBelowLabel = Label(window , text = 'Below are the custom words to be added to the puzzle:' , bg = '#5C636E' , fg = '#FFFFFF' , font = ('Times New Roman' , 14))
-wordsBelowLabel.place(x = 5 , y = 400)
-wordsBelowReminder = Label(window , text = 'Please keep in mind that the first words added take priority over words added later, when it comes to finding placement for them within the puzzle.' , bg = '#5C636E' , fg = '#CCCCCC' , font = ('Times New Roman' , 10))
-wordsBelowReminder.place(x = 5 , y = 420)
-wordsListLabel = Label(window , text = defaultWordDisplayed , justify = LEFT , bg = '#5C636E' , fg = '#ce5656' , font = ('Times New Roman bold' , 14))
-wordsListLabel.place(x = 10 , y = 450)
+wordsBelowLabel = Label(window , text = 'Word List:' , bg = colors[0] , fg = colors[2] , font = ('Arial' , 20))
+wordsBelowLabel.pack(side = 'top' , pady = (255 , 0))
 
-genButton = Button(window , text = 'Generate Puzzle(s)' , bd = 0 , bg = '#007BFF' , fg = '#FFFFFF' , activebackground = '#FF5000' , activeforeground = '#000000', font = ('Times New Roman' , 20) , command = lambda: messagebox.showerror('Invalid Input' , 'Please check your input to ensure it is valid, and try again.'))
-genButton.pack(side = 'bottom' , pady = 10)
+addWordsButton = Button(window , text = 'Add A Word' , bd = 0 , bg = colors[5] , fg = colors[0] , activebackground = colors[0] , activeforeground = colors[5] , highlightthickness = 2 , highlightbackground = colors[5] , font = ('Arial bold' , 15) , command = getWords)
+addWordsButton.pack(side = 'top' , pady = 5)
+
+wordsListLabel = Label(window , text = defaultWordDisplayed , justify = LEFT , bg = colors[0] , fg = colors[6] , font = ('Arial' , 12))
+wordsListLabel.place(x = 10 , y = 400)
+
+genButton = Button(window , text = 'Generate Puzzle' , bd = 0 , bg = colors[4] , fg = colors[0] , activebackground = colors[0] , activeforeground = colors[4] , highlightthickness = 4 , highlightbackground = colors[5] , font = ('Arial bold' , 20) , command = lambda: messagebox.showerror('Invalid Input' , 'Please check your input to ensure it is valid, and try again.'))
+genButton.pack(side = 'bottom' , pady = 15)
 
 #Start the validity checking thread:
 validityThread = threading.Thread(target = validityCheck , args = () , daemon = True)
 validityThread.start()
 
 window.mainloop()
+
+### End of GUIs ###
