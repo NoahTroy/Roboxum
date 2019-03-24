@@ -1,6 +1,5 @@
 > *Please Note: This project is ***still under very early development***. Therefore, functional code is still missing, many of the links below are simply dummy links, and the included information and hash sums are very apt to change by the time we put-out our first stable release.*
 
-![Roboxum Logo](https://raw.githubusercontent.com/NoahTroy/Roboxum/master/Roboxum%20Logo%20200x200.gif)
 # Roboxum
 Roboxum is a free Word Finder puzzle generator, capable of creating custom educational and entertaining puzzles, similar to those seen in the game "Boggle". This software was designed to be used in a classroom setting, allowing language teachers to create custom puzzles for their students, to aid in vocabulary review. That being said, I'm sure there are plenty of other entertaining uses as well. This software is fully open-source and free to use, however I make no guarantees about its continued functionality, or about consistently updating the executable files for each operating system.
 ## Installation Instructions
