@@ -3,9 +3,15 @@ Roboxum is a free Word Finder puzzle generator, capable of creating custom educa
 ## Installation Instructions
 The easiest way to install Roboxum is to download the appropriate file linked below, corresponding to the Operating System you wish to run the software on:
 
- - Windows (Ideally Windows 7 64-bit or newer): [Windows Installer](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum.v1.0.0.Windows.64-bit.zip)
-	 - SHA-512 Hash: `238C84CE0627600BA9F0E31B92733C8E7FE8AB96B98F37CB47F6DBE855498F89`
- - MacOS (Mojave 10.14 or higher required): Not Yet Supported, But Coming Soon!
+ - Windows (Ideally Windows 7 or newer):
+ 	 - [Windows Executable (64-bit)](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_Windows.64-bit.zip)
+	 	 - SHA-256 Hash: `238C84CE0627600BA9F0E31B92733C8E7FE8AB96B98F37CB47F6DBE855498F89`
+	 - [Windows Executable (32-bit)](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_Windows.32-bit.zip)
+	 	 - SHA-256 Hash: `CEC2AA717FAD9E19616901FD4D54A5CF0F7DB3B21D19C1DBE8B06C2600A92C35`
+ - MacOS (Mojave 10.14 or higher required):
+ 	 - [MacOS Application (64-bit)](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_MacOS.64-bit.app.zip)
+	 	 - SHA-256 Hash: `A39CD9D028460FFA6319C2A203F74480C795C0911952EBDCA29C52128784A110`
+		 - Please note: Some users have reported issues with this release, and it appeaers as though pyinstaller may have had issues compiling parts of the toolkit interface library. If you experience any issues running the software, please use the advanced installation instructions below instead.
 > Due the many different Linux distros and flavours, I do not maintain an installer. Instead, because a majority of the most-popular Linux distributions come with Python 3.x already installed, I recommend that Linux users follow the advanced instructions below.
 ## How to Use
 After downloading the ZIP file, decompress it, and then double click on Roboxum.exe. If you wish to add your own custom character sets, open notepad and save a file titled customCharacterSet.txt in the same directory as the Roboxum.exe file. Then, enter the characters you wish to use in the puzzle, into the text file. Make sure you do not include any spaces, new lines, tabs, etc. See the included customCharacterSet.txt file [here](https://github.com/NoahTroy/Roboxum/blob/master/customCharacterSet.txt) for an example as to how to format your file.
