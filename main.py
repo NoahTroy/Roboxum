@@ -2,6 +2,8 @@
 import threading , time , random
 from tkinter import *
 from tkinter import messagebox
+from fpdf import FPDF
+import os
 
 #Declare any necessary global variables:
 defaultCharSet = ['A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H' , 'I' , 'J' , 'K' , 'L' , 'M' , 'N' , 'O' , 'P' , 'Q' , 'R' , 'S' , 'T' , 'U' , 'V' , 'W' , 'X' , 'Y' , 'Z']
@@ -14,6 +16,44 @@ characterSet = defaultCharSet[:]
 
 
 ### Core Functions ###
+
+#Define a function to save the generated board(s) as a PDF:
+def pdfGen(board):
+	pdf = FPDF(orientation = 'P' , unit = 'in' , format = 'letter')
+	pdf.add_page()
+
+	#Add the title:
+	pdf.set_font('Arial' , size = 25)
+	pdf.cell(7.5 , 0.5 , txt = 'Word Finder Puzzle' , ln = 1 , align = 'C' , border = 0)
+
+	#Add the cells:
+	cellHeight = (9.25 / len(board))
+	cellWidth = (7.75 / len(board[0]))
+	#There are 72 points in one inch... assume 60 just to make sure there is plenty of extra room:
+	smallerOne = 0
+	if (cellHeight > cellWidth):
+		smallerOne = cellWidth
+	else:
+		smallerOne = cellHeight
+
+	fontSize = (smallerOne * 60)
+	pdf.set_font('Arial' , size = fontSize)
+	for row in board:
+		for character in row:
+			pdf.cell(cellWidth , cellHeight , txt = character , ln = 0 , align = 'C' , border = 1)
+		pdf.ln(cellHeight)
+
+	name = 'Puzzle'
+	nameWithCounter = 'Puzzle'
+	counter = 1
+	while True:
+		if (os.path.isfile((nameWithCounter + '.pdf'))):
+			nameWithCounter = (name + str(counter))
+			counter += 1
+		else:
+			pdf.output((nameWithCounter + '.pdf'))
+			break
+
 
 #Define a function that identifies and returns all possible valid "next moves":
 def nextValidLocation(currentBoard , letter , y = 0 , x = 0):
@@ -182,19 +222,49 @@ def genBoards(numBoardsToGen , boardDimensions , words):
 
 #Define a function to handle the start of the board generation process, and present a waiting screen:
 def startBoardGen():
+	#Load the custom character set if there is one:
+	global characterSet
+	if (characterSet[0] == 'Custom'):
+		try:
+			charSetFile = open('customCharacterSet.txt' , 'r')
+			characters = charSetFile.read()
+			characters = characters[0:(len(characters) - 1)]
+			charSetFile.close()
+
+			characterSet = []
+			for character in characters:
+				characterSet.append(character)
+
+		except:
+			characterSet = defaultCharSet
+
 	if (int(numPuzzleBox.get()) > 1):
-		messagebox.showinfo('Puzzles Being Generated' , 'Your puzzles will now be generated in the background. You will receive another message box once they have been successfully created.')
+		messagebox.showinfo('Puzzles Being Generated' , 'Your puzzles will now be generated after clicking "OK". You will receive another message once they have been successfully created.')
 	else:
-		messagebox.showinfo('Puzzle Being Generated' , 'Your puzzle will now be generated in the background. You will receive another message box once it has been successfully created.')
+		messagebox.showinfo('Puzzle Being Generated' , 'Your puzzle will now be generated after clicking "OK". You will receive another message once it has been successfully created.')
 
 	numberOfPuzzles = int(numPuzzleBox.get())
 	boardDimensions = [int(yDimenBox.get()) , int(xDimenBox.get())]
-	window.destroy()
 
 	boardsToUse = genBoards(numberOfPuzzles , boardDimensions , wordsToInclude)
 
-	print('\n\n\nFinal Return:\t')
-	print(boardsToUse)
+	boardCounter = 0
+	for board in boardsToUse:
+		rowCounter = 0
+		for row in board:
+			itemCounter = 0
+			for item in row:
+				if (item == 'ebce1dd2d40aec3'):
+					boardsToUse[boardCounter][rowCounter][itemCounter] = characterSet[int(random.random() * len(characterSet))]
+				itemCounter += 1
+			rowCounter += 1
+		boardCounter += 1
+
+		pdfGen(board)
+
+	messagebox.showinfo('Puzzles Generated' , 'Your puzzle(s) have now been successfully generated and saved in the same directory as this program.\nEnjoy!\n:)')
+
+	window.destroy()
 
 
 #Define a function to get the inputted words from getWords, and add them to the wordsToInclude list:
