@@ -67,24 +67,25 @@ def nextValidLocation(currentBoard , letter , y = 0 , x = 0):
 #Define a function that takes the user's input and generates the corresponding board(s):
 def genBoards(numBoardsToGen , boardDimensions , words):
 	boards = []
-	#Generate a base, "blank" board:
-	board = []
-	for i in range(0 , boardDimensions[0]):
-		row = []
-		for i in range(0 , boardDimensions[1]):
-			row.append('ebce1dd2d40aec3')
-		board.append(row)
 
 	for i in range(0 , numBoardsToGen):
 		genedBoards = []
 		#Generate 10 boards, then choose the one that managed to fit-in the most words:
 		for i in range(0 , 10):
-			tempBoard = board[:]
+			#Generate a base, "blank" board:
+			tempBoard = []
+			for i in range(0 , boardDimensions[0]):
+				row = []
+				for i in range(0 , boardDimensions[1]):
+					row.append('ebce1dd2d40aec3')
+				tempBoard.append(row)
 			notFull = True
 			wordsNotAdded = []
 			loopNotBroken = True
+			notAddedYet = True
 
 			#Loop over each word to try to add it to the board:
+			finalWord = words[(len(words) - 1)]
 			for word in words:
 				#Detect if the board is already full, then return it as-is if it is:
 				for row in tempBoard:
@@ -97,12 +98,15 @@ def genBoards(numBoardsToGen , boardDimensions , words):
 
 				if (notFull):
 					tryCounter = 0
-					attemptSuccess = True
 					while (True):
+						attemptSuccess = True
 						#Allow a maximum of 50 tries to try and place each word (this is a bit overkill, but doesn't take-up too much time. Therefore it'll be nice to have for the larger puzzles):
 						if (tryCounter >= 50):
 							wordsNotAdded.append(word)
-							loopNotBroken = False
+							if (word == finalWord):
+								loopNotBroken = True
+							else:
+								loopNotBroken = False
 							break
 
 						#Choose a random starting position (and try infinitely until one is found that is available):
@@ -134,17 +138,32 @@ def genBoards(numBoardsToGen , boardDimensions , words):
 									x2 = moveToTry[1]
 
 							if (attemptSuccess):
-								loopNotBroken = False
+								if (word == finalWord):
+									loopNotBroken = True
+								else:
+									loopNotBroken = False
 								break
 
 						else:
 							continue
 				else:
 					genedBoards.append([tempBoard , len(wordsNotAdded)])
+					notAddedYet = False
+					break
 				if (loopNotBroken):
 					genedBoards.append([tempBoard , len(wordsNotAdded)])
+					notAddedYet = False
+					break
 				else:
 					loopNotBroken = True
+
+			if (notAddedYet):
+				genedBoards.append([tempBoard , len(wordsNotAdded)])
+				notAddedYet = False
+
+		if (notAddedYet):
+			genedBoards.append([tempBoard , 0])
+
 		if (len(genedBoards) == 0):
 			continue
 		leastWordsNotAdded = genedBoards[0][1]
@@ -174,6 +193,7 @@ def startBoardGen():
 
 	boardsToUse = genBoards(numberOfPuzzles , boardDimensions , wordsToInclude)
 
+	print('\n\n\nFinal Return:\t')
 	print(boardsToUse)
 
 
@@ -226,6 +246,11 @@ def addWords(windowToDestroy , word , characterSet):
 		if (len(wordsToInclude) >= 20):
 			messagebox.showerror('Unable to Accept Input' , 'You have already entered the maximum of 20 words, therefore this word will not be added.')
 			return
+
+	#Check to make sure the word hasn't already been added:
+	if (word in wordsToInclude):
+		messagebox.showerror('Unable to Accept Input' , 'This word has already been entered. Please enter a new word.')
+		return
 
 	wordsToInclude.append(word)
 	counter = 1
