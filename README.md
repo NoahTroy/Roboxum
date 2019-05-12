@@ -4,12 +4,12 @@ Roboxum is a free Word Finder puzzle generator, capable of creating custom educa
 The easiest way to install Roboxum is to download the appropriate file linked below, corresponding to the Operating System you wish to run the software on:
 
  - Windows (Ideally Windows 7 or newer):
- 	 - [Windows Executable (64-bit)](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_Windows.64-bit.zip)
-	 	 - SHA-256 Hash: `238C84CE0627600BA9F0E31B92733C8E7FE8AB96B98F37CB47F6DBE855498F89`
-	 - [Windows Executable (32-bit)](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_Windows.32-bit.zip)
+ 	 - [Windows Executable (64-bit) v2.0.0](https://github.com/NoahTroy/Roboxum/releases/download/v2.0.0/Roboxum_v2.0.0_Windows.64-bit.zip)
+	 	 - SHA-256 Hash: `13E8286D31E0C647588D221CCD63ED1942085D2B327180EAA29FB4E08FE8B7C1`
+	 - [Windows Executable (32-bit) v1.0.0](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_Windows.32-bit.zip)
 	 	 - SHA-256 Hash: `CEC2AA717FAD9E19616901FD4D54A5CF0F7DB3B21D19C1DBE8B06C2600A92C35`
  - MacOS (Mojave 10.14 or higher required):
- 	 - [MacOS Application (64-bit)](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_MacOS.64-bit.app.zip)
+ 	 - [MacOS Application (64-bit) v1.0.0](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_MacOS.64-bit.app.zip)
 	 	 - SHA-256 Hash: `A39CD9D028460FFA6319C2A203F74480C795C0911952EBDCA29C52128784A110`
 		 - Please note: Some users have reported issues with this release, and it appeaers as though pyinstaller may have had issues compiling parts of the toolkit interface library. If you experience any issues running the software, please use the advanced installation instructions below instead.
 > Due the many different Linux distros and flavours, I do not maintain an installer. Instead, because a majority of the most-popular Linux distributions come with Python 3.x already installed, I recommend that Linux users follow the advanced instructions below.
