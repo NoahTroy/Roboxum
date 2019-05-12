@@ -1,9 +1,4 @@
 Notes for future improvements/ideas:
-- Add different template options. I.E. one that gives a wordlist, one that gives a name/date field, one that provides lines for people to write-down the words that they've found, etc.
 - Allow an answer key to be generated.
-- Add a puzzle generation progress bar (wait to see if this is realistic... i.e. if puzzle generation actually ends-up taking a while or not).
 - Add the ability to save puzzles previously generated for future printing/saving.
-- Add the ability to generate puzzles with random words from the dictionary (or a custom dictionary) for fun, random gameplay.
-
-Notes for development:
-MAKE SURE TO RESET THE GLOBAL VARIABLES, OR TERMINATE THE CODE AFTER GENERATING THE BOARDS, OTHERWISE ERRORS WILL HAPPEN!
+- Add support for dictionaries from different languages or even custom dictionaries.
