@@ -6,8 +6,8 @@ The easiest way to install Roboxum is to download the appropriate file linked be
  - Windows (Ideally Windows 7 or newer):
  	 - [Windows Executable (64-bit) v2.0.0](https://github.com/NoahTroy/Roboxum/releases/download/v2.0.0/Roboxum_v2.0.0_Windows.64-bit.zip)
 	 	 - SHA-256 Hash: `13E8286D31E0C647588D221CCD63ED1942085D2B327180EAA29FB4E08FE8B7C1`
-	 - [Windows Executable (32-bit) v1.0.0](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_Windows.32-bit.zip)
-	 	 - SHA-256 Hash: `CEC2AA717FAD9E19616901FD4D54A5CF0F7DB3B21D19C1DBE8B06C2600A92C35`
+	 - [Windows Executable (32-bit) v2.0.0](https://github.com/NoahTroy/Roboxum/releases/download/v2.0.0/Roboxum_v2.0.0_Windows.32-bit.zip)
+	 	 - SHA-256 Hash: `91ca6f3f1f15e60c1d7d5f3f83296da89a6ed30ed3080fb415b8b7f192e6f525`
  - MacOS (Mojave 10.14 or higher required):
  	 - [MacOS Application (64-bit) v1.0.0](https://github.com/NoahTroy/Roboxum/releases/download/v1.0.0/Roboxum_v1.0.0_MacOS.64-bit.app.zip)
 	 	 - SHA-256 Hash: `A39CD9D028460FFA6319C2A203F74480C795C0911952EBDCA29C52128784A110`
